@@ -47,7 +47,11 @@ class MyAppState extends State<MyApp> {
               SizedBox(height: 20),
               Builder(
                 builder: (context) => MaterialButton(
-                  onPressed: () => doTransaction(context),
+                  onPressed: () {
+                    if (!isTransactionRunning) {
+                      doTransaction(context);
+                    }
+                  },
                   color: Colors.blue,
                   child: Text(
                     'Test Firestore Transaction',
@@ -73,6 +77,13 @@ class MyAppState extends State<MyApp> {
     try {
       // Run a transaction.
       await firestore.runTransaction((transaction) async {
+        /// Start using the transaction.
+        await transaction.get(docRef);
+
+        /// Provide a time window for disabling and enabling the internet.
+        await Future.delayed(Duration(seconds: 3));
+
+        /// Use the transaction again.
         transaction.update(docRef, {'count': FieldValue.increment(1)});
       });
     } catch (e) {
